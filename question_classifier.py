@@ -17,8 +17,9 @@ class QuestionClassifier:
         self.drug_path = os.path.join(cur_dir, 'dict/drug.txt')
         self.food_path = os.path.join(cur_dir, 'dict/food.txt')
         self.producer_path = os.path.join(cur_dir, 'dict/producer.txt')
-        self.symptom_path = os.path.join(cur_dir, 'dict/symptom.txt')
+        self.symptom_path = os.path.join(cur_dir, 'dict/symptoms.txt')
         self.deny_path = os.path.join(cur_dir, 'dict/deny.txt')
+
         # 加载特征词
         self.disease_wds= [i.strip() for i in open(self.disease_path, encoding='UTF-8') if i.strip()]
         self.department_wds= [i.strip() for i in open(self.department_path, encoding='UTF-8') if i.strip()]
@@ -27,10 +28,11 @@ class QuestionClassifier:
         self.food_wds= [i.strip() for i in open(self.food_path, encoding='UTF-8') if i.strip()]
         self.producer_wds= [i.strip() for i in open(self.producer_path, encoding='UTF-8') if i.strip()]
         self.symptom_wds= [i.strip() for i in open(self.symptom_path, encoding='UTF-8') if i.strip()]
-        self.region_words = set(self.department_wds + self.disease_wds + self.check_wds + self.drug_wds + self.food_wds + self.producer_wds + self.symptom_wds)
+        self.region_wds = set(self.department_wds + self.disease_wds + self.check_wds + self.drug_wds + self.food_wds + self.producer_wds + self.symptom_wds)
         self.deny_words = [i.strip() for i in open(self.deny_path, encoding='UTF-8') if i.strip()]
+
         # 构造领域actree
-        self.region_tree = self.build_actree(list(self.region_words))
+        self.region_tree = self.build_actree(list(self.region_wds))
         # 构建词典
         self.wdtype_dict = self.build_wdtype_dict()
         # 问句疑问词
@@ -47,6 +49,7 @@ class QuestionClassifier:
         self.lasttime_qwds = ['周期', '多久', '多长时间', '多少时间', '几天', '几年', '多少天', '多少小时', '几个小时', '多少年']
         self.cureway_qwds = ['怎么治疗', '如何医治', '怎么医治', '怎么治', '怎么医', '如何治', '医治方式', '疗法', '咋治', '怎么办', '咋办', '咋治']
         self.cureprob_qwds = ['多大概率能治好', '多大几率能治好', '治好希望大么', '几率', '几成', '比例', '可能性', '能治', '可治', '可以治', '可以医']
+        self.getprob_qwds = ['感染概率', '得病几率', '有多大可能患病', '有多大可能感染', '几率', '几成', '比例', '可能性']
         self.easyget_qwds = ['易感人群', '容易感染', '易发人群', '什么人', '哪些人', '感染', '染上', '得上']
         self.check_qwds = ['检查', '检查项目', '查出', '检查', '测出', '试出']
         self.belong_qwds = ['属于什么科', '属于', '什么科', '科室']
@@ -64,6 +67,7 @@ class QuestionClassifier:
         if not medical_dict:
             return {}
         data['args'] = medical_dict
+
         #收集问句当中所涉及到的实体类型
         types = []
         for type_ in medical_dict.values():
@@ -148,6 +152,11 @@ class QuestionClassifier:
             question_type = 'disease_cureprob'
             question_types.append(question_type)
 
+        # 得病可能性
+        if self.check_words(self.getprob_qwds, question) and 'disease' in types:
+            question_type = 'disease_getprob'
+            question_types.append(question_type)
+
         # 疾病易感染人群
         if self.check_words(self.easyget_qwds, question) and 'disease' in types :
             question_type = 'disease_easyget'
@@ -169,7 +178,7 @@ class QuestionClassifier:
     '''构造词对应的类型'''
     def build_wdtype_dict(self):
         wd_dict = dict()
-        for wd in self.region_words:
+        for wd in self.region_wds:
             wd_dict[wd] = []
             if wd in self.disease_wds:
                 wd_dict[wd].append('disease')

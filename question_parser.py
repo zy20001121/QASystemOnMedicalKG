@@ -76,6 +76,9 @@ class QuestionPaser:
             elif question_type == 'disease_cureprob':
                 sql = self.sql_transfer(question_type, entity_dict.get('disease'))
 
+            elif question_type == 'disease_getprob':
+                sql = self.sql_transfer(question_type, entity_dict.get('disease'))
+
             elif question_type == 'disease_easyget':
                 sql = self.sql_transfer(question_type, entity_dict.get('disease'))
 
@@ -109,8 +112,16 @@ class QuestionPaser:
             sql = ["MATCH (m:Disease) where m.name = '{0}' return m.name, m.cure_lasttime".format(i) for i in entities]
 
         # 查询疾病的治愈概率
+        elif question_type == 'disease_getprob':
+            sql = ["MATCH (m:Disease) where m.name = '{0}' return m.name, m.get_prob".format(i) for i in entities]
+
+        # 查询疾病的治愈概率
         elif question_type == 'disease_cureprob':
             sql = ["MATCH (m:Disease) where m.name = '{0}' return m.name, m.cured_prob".format(i) for i in entities]
+
+        # 查询疾病的治愈概率
+        elif question_type == 'disease_getprob':
+            sql = ["MATCH (m:Disease) where m.name = '{0}' return m.name, m.get_prob".format(i) for i in entities]
 
         # 查询疾病的治疗方式
         elif question_type == 'disease_cureway':

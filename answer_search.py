@@ -66,6 +66,11 @@ class AnswerSearcher:
             subject = answers[0]['m.name']
             final_answer = '{0}治愈的概率为（仅供参考）：{1}'.format(subject, '；'.join(list(set(desc))[:self.num_limit]))
 
+        elif question_type == 'disease_getprob':
+            desc = [i['m.get_prob'] for i in answers]
+            subject = answers[0]['m.name']
+            final_answer = '{0}患病的概率为（仅供参考）：{1}'.format(subject, '；'.join(list(set(desc))[:self.num_limit]))
+
         elif question_type == 'disease_easyget':
             desc = [i['m.easy_get'] for i in answers]
             subject = answers[0]['m.name']
